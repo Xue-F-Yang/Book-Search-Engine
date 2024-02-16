@@ -14,18 +14,29 @@ const server = new ApolloServer({
   context: authMiddleware,
 });
 
-server.applyMiddleware({ app });
+const startApolloServer = async () => {
+  await server.start();
+  server.applyMiddleware({ app });
+};
+
+startApolloServer();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const _dirname = path.dirname("");
 const buildPath = path.join(__dirname, "../client/build");
 app.use(express.static(buildPath));
 
 if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/build")));
+
   app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "..", "client", "build", "index.html"));
+    res.sendFile(path.join(__dirname, "../client/build/index.html"));
+  });
+} else {
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/public/index.html"));
   });
 }
 
